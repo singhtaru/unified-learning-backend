@@ -1,0 +1,194 @@
+[
+  {
+    "course_id": "coursera-machine-learning-andrew-ng",
+    "title": "Machine Learning Specialization",
+    "platform": "Coursera",
+    "duration": "3 months",
+    "level": "intermediate",
+    "goal": "certification"
+  },
+  {
+    "course_id": "udemy-python-bootcamp-2024",
+    "title": "Complete Python Bootcamp From Zero to Hero",
+    "platform": "Udemy",
+    "duration": "2 months",
+    "level": "beginner",
+    "goal": "job"
+  },
+  {
+    "course_id": "edx-cs50-introduction-computer-science",
+    "title": "CS50's Introduction to Computer Science",
+    "platform": "edX",
+    "duration": "4 months",
+    "level": "beginner",
+    "goal": "learning"
+  },
+  {
+    "course_id": "udacity-full-stack-nanodegree",
+    "title": "Full Stack Web Developer Nanodegree",
+    "platform": "Udacity",
+    "duration": "5 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "coursera-google-data-analytics",
+    "title": "Google Data Analytics Professional Certificate",
+    "platform": "Coursera",
+    "duration": "6 months",
+    "level": "beginner",
+    "goal": "job"
+  },
+  {
+    "course_id": "udemy-react-complete-guide",
+    "title": "React - The Complete Guide (Hooks, Router, Redux)",
+    "platform": "Udemy",
+    "duration": "2 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "edx-mit-introduction-algorithms",
+    "title": "Introduction to Algorithms and Data Structures",
+    "platform": "edX",
+    "duration": "3 months",
+    "level": "advanced",
+    "goal": "research"
+  },
+  {
+    "course_id": "udacity-aws-cloud-architect",
+    "title": "AWS Cloud Architect Nanodegree",
+    "platform": "Udacity",
+    "duration": "4 months",
+    "level": "intermediate",
+    "goal": "certification"
+  },
+  {
+    "course_id": "coursera-deep-learning-deeplearning-ai",
+    "title": "Deep Learning Specialization",
+    "platform": "Coursera",
+    "duration": "4 months",
+    "level": "advanced",
+    "goal": "learning"
+  },
+  {
+    "course_id": "udemy-sql-mysql-bootcamp",
+    "title": "The Ultimate MySQL Bootcamp: Go from SQL Beginner to Expert",
+    "platform": "Udemy",
+    "duration": "1 month",
+    "level": "beginner",
+    "goal": "job"
+  },
+  {
+    "course_id": "edx-harvard-cs50-web",
+    "title": "CS50's Web Programming with Python and JavaScript",
+    "platform": "edX",
+    "duration": "3 months",
+    "level": "intermediate",
+    "goal": "learning"
+  },
+  {
+    "course_id": "udacity-data-engineer-nanodegree",
+    "title": "Data Engineer Nanodegree",
+    "platform": "Udacity",
+    "duration": "5 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "coursera-ibm-data-science",
+    "title": "IBM Data Science Professional Certificate",
+    "platform": "Coursera",
+    "duration": "5 months",
+    "level": "beginner",
+    "goal": "certification"
+  },
+  {
+    "course_id": "udemy-docker-kubernetes-complete",
+    "title": "Docker and Kubernetes: The Complete Guide",
+    "platform": "Udemy",
+    "duration": "2 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "edx-ibm-ai-engineering",
+    "title": "IBM AI Engineering Professional Certificate",
+    "platform": "edX",
+    "duration": "6 months",
+    "level": "intermediate",
+    "goal": "certification"
+  },
+  {
+    "course_id": "udacity-ai-programming-python",
+    "title": "AI Programming with Python Nanodegree",
+    "platform": "Udacity",
+    "duration": "3 months",
+    "level": "beginner",
+    "goal": "learning"
+  },
+  {
+    "course_id": "coursera-statistics-with-r",
+    "title": "Statistics with R Specialization",
+    "platform": "Coursera",
+    "duration": "3 months",
+    "level": "intermediate",
+    "goal": "research"
+  },
+  {
+    "course_id": "udemy-javascript-algorithms-data-structures",
+    "title": "JavaScript Algorithms and Data Structures Masterclass",
+    "platform": "Udemy",
+    "duration": "2 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "edx-linuxfoundation-devops",
+    "title": "Introduction to DevOps and Site Reliability Engineering",
+    "platform": "edX",
+    "duration": "2 months",
+    "level": "beginner",
+    "goal": "learning"
+  },
+  {
+    "course_id": "udacity-c-plus-plus-nanodegree",
+    "title": "C++ Nanodegree Program",
+    "platform": "Udacity",
+    "duration": "4 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "coursera-generative-ai-everyone",
+    "title": "Generative AI for Everyone",
+    "platform": "Coursera",
+    "duration": "1 month",
+    "level": "beginner",
+    "goal": "learning"
+  },
+  {
+    "course_id": "udemy-flutter-dart-complete",
+    "title": "Flutter & Dart - The Complete Guide",
+    "platform": "Udemy",
+    "duration": "3 months",
+    "level": "intermediate",
+    "goal": "job"
+  },
+  {
+    "course_id": "edx-uc-berkeley-data-science",
+    "title": "Foundations of Data Science",
+    "platform": "edX",
+    "duration": "3 months",
+    "level": "beginner",
+    "goal": "learning"
+  },
+  {
+    "course_id": "udacity-frontend-nanodegree",
+    "title": "Front End Web Developer Nanodegree",
+    "platform": "Udacity",
+    "duration": "4 months",
+    "level": "beginner",
+    "goal": "job"
+  }
+]

@@ -1,7 +1,11 @@
 from typing import List
 
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Load .env from cwd / standard locations before reading env vars.
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -20,8 +24,37 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    weaviate_url: str = Field(
+        default="http://localhost:8080",
+        description="Weaviate REST/gRPC base URL (env: WEAVIATE_URL)",
+    )
+    similarity_threshold: float = Field(
+        default=0.3,
+        description="Minimum similarity for filtered Weaviate search (env: SIMILARITY_THRESHOLD)",
+    )
+    model_name: str = Field(
+        default="all-MiniLM-L6-v2",
+        description="Sentence-transformers model id (env: MODEL_NAME)",
+    )
+
+    course_search_api_url: str = Field(
+        default="",
+        description="GET endpoint for external course search (query params: query, level, duration, goal, limit). Env: COURSE_SEARCH_API_URL",
+    )
+    course_search_api_key: str = Field(
+        default="",
+        description="Optional Bearer token for course search API (env: COURSE_SEARCH_API_KEY)",
+    )
+    course_search_timeout_seconds: float = Field(
+        default=15.0,
+        description="HTTP timeout for course search API (env: COURSE_SEARCH_TIMEOUT_SECONDS)",
+    )
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 settings = Settings()
-

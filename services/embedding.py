@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from config.settings import settings
+
 try:
     from sentence_transformers import SentenceTransformer  # type: ignore
 except ModuleNotFoundError:  # pragma: no cover
@@ -15,7 +17,7 @@ def load_model() -> "SentenceTransformer":
     if SentenceTransformer is None:  # pragma: no cover
         raise RuntimeError("Missing dependency: sentence-transformers")
     if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        _model = SentenceTransformer(settings.model_name)
     return _model
 
 
