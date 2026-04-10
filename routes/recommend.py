@@ -19,8 +19,15 @@ router = APIRouter()
 @router.post("/recommend", response_model=RecommendResponse, status_code=status.HTTP_200_OK)
 def recommend(payload: RecommendRequest) -> RecommendResponse:
     """
-    Generate course recommendations via the decision agent (memory / hybrid / new),
-    then persist to mock DB and Weaviate.
+    **Body (JSON):** ``query``, ``duration``, ``level``, ``goal``.
+
+    Aliases accepted: ``userInput`` → ``query``, ``selectedLevel`` → ``level``,
+    ``userGoal`` → ``goal``.
+
+    ``compare`` / ``vs`` in ``query`` uses APIs on the raw query only; otherwise
+    memory/hybrid/API paths use an enriched string built from all four fields.
+    Results are stored in the mock DB and persisted to Weaviate (metadata includes
+    level, duration, goal).
     """
     query_id = str(uuid4())
 

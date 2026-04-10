@@ -16,6 +16,12 @@ router = APIRouter()
 def submit_feedback(payload: CourseFeedbackRequest) -> FeedbackSuccessResponse:
     """Store per-course user feedback in SQLite."""
     try:
+        logger.info(
+            "Feedback received user_id=%r course_id=%r rating=%d",
+            payload.user_id,
+            payload.course_id,
+            payload.rating,
+        )
         feedback_id = save_feedback(
             user_id=payload.user_id,
             course_id=payload.course_id,
@@ -23,6 +29,12 @@ def submit_feedback(payload: CourseFeedbackRequest) -> FeedbackSuccessResponse:
             timestamp=payload.timestamp,
         )
         avg = get_average_rating(payload.course_id)
+        logger.info(
+            "Feedback stored feedback_id=%d course_id=%r course_average_rating=%.2f",
+            feedback_id,
+            payload.course_id,
+            avg,
+        )
         weaviate_updated = sync_course_feedback_to_weaviate(payload.course_id)
         if weaviate_updated == 0:
             logger.debug(

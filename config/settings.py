@@ -29,8 +29,16 @@ class Settings(BaseSettings):
         description="Weaviate REST/gRPC base URL (env: WEAVIATE_URL)",
     )
     similarity_threshold: float = Field(
-        default=0.3,
+        default=0.5,
         description="Minimum similarity for filtered Weaviate search (env: SIMILARITY_THRESHOLD)",
+    )
+    memory_threshold: float = Field(
+        default=0.7,
+        description="Similarity threshold for MEMORY strategy (env: MEMORY_THRESHOLD)",
+    )
+    hybrid_threshold: float = Field(
+        default=0.5,
+        description="Similarity floor for HYBRID strategy (env: HYBRID_THRESHOLD)",
     )
     model_name: str = Field(
         default="all-MiniLM-L6-v2",

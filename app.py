@@ -1,15 +1,15 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from config.settings import settings
-from routes.debug import router as debug_router
 from routes.feedback import router as feedback_router
 from routes.recommend import router as recommend_router
-from routes.test_search import router as test_search_router
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,8 @@ def _configure_logging() -> None:
 
 _configure_logging()
 
+BASE_DIR = Path(__file__).resolve().parent
+
 app = FastAPI(
     title="Unified Course Recommendation and Learning Decision Support System - Phase 1",
     version="0.1.0",
@@ -52,5 +54,9 @@ app.add_middleware(
 
 app.include_router(recommend_router)
 app.include_router(feedback_router)
-app.include_router(test_search_router)
-app.include_router(debug_router)
+
+
+@app.get("/demo")
+def course_cards_demo() -> FileResponse:
+    """Static course-card UI preview (title, platform + duration badges)."""
+    return FileResponse(BASE_DIR / "static" / "course-demo.html", media_type="text/html")

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Course recommendations — card preview</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface-hover: #222d3f;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --border: #2d3a4f;
+      --radius: 12px;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: linear-gradient(160deg, var(--bg) 0%, #151c28 100%);
+      color: var(--text);
+      padding: 1.5rem clamp(1rem, 4vw, 2.5rem);
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.35rem;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      max-width: 42rem;
+      line-height: 1.5;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.35rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--shadow);
+    }
+
+    .fields {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      align-items: end;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    input {
+      font: inherit;
+      padding: 0.55rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    input:focus {
+      outline: 2px solid #3d5a80;
+      outline-offset: 1px;
+    }
+
+    button {
+      font: inherit;
+      font-weight: 600;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: #3d7ea6;
+      color: #fff;
+      cursor: pointer;
+      justify-self: start;
+    }
+
+    button:hover { background: #4a8fb8; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .error {
+      margin-top: 0.75rem;
+      color: #f0a0a0;
+      font-size: 0.9rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem 1.15rem;
+      box-shadow: var(--shadow);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .card:hover {
+      background: var(--surface-hover);
+      border-color: #3d4d66;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.35;
+      margin: 0 0 0.85rem;
+      letter-spacing: -0.01em;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 0.35rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+
+    .badge-platform {
+      color: #fff;
+    }
+
+    .badge-platform.udemy {
+      background: linear-gradient(135deg, #a435f0 0%, #7c2cbf 100%);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 8px rgba(164, 53, 240, 0.25);
+    }
+
+    .badge-platform.youtube {
+      background: linear-gradient(135deg, #ff0000 0%, #c40000 100%);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(255, 0, 0, 0.22);
+    }
+
+    .badge-platform.coursera {
+      background: linear-gradient(135deg, #0056d2 0%, #003e9c 100%);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 86, 210, 0.22);
+    }
+
+    .badge-platform.other {
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .badge-duration {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border-color: var(--border);
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-size: 0.78rem;
+    }
+
+    .badge-duration::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6ab0de;
+      flex-shrink: 0;
+    }
+
+    .reason {
+      margin-top: 0.85rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 0.95rem;
+      padding: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Course cards</h1>
+  <p class="sub">
+    Preview of recommendation cards: title, platform badge (Udemy / YouTube / Coursera),
+    and duration badge. Uses <code>POST /recommend</code> on this server.
+  </p>
+
+  <div class="panel">
+    <form id="form" class="fields">
+      <label>Query
+        <input name="query" type="text" value="python for beginners" required />
+      </label>
+      <label>Level
+        <input name="level" type="text" value="beginner" />
+      </label>
+      <label>Duration
+        <input name="duration" type="text" value="flexible" />
+      </label>
+      <label>Goal
+        <input name="goal" type="text" value="learning" />
+      </label>
+      <button type="submit" id="go">Get recommendations</button>
+    </form>
+    <div id="err" class="error" hidden></div>
+  </div>
+
+  <div id="out" class="grid"></div>
+
+  <script>
+    function platformClass(platform) {
+      const p = String(platform || "").toLowerCase();
+      if (p.includes("udemy")) return "udemy";
+      if (p.includes("youtube")) return "youtube";
+      if (p.includes("coursera")) return "coursera";
+      return "other";
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function renderCard(c) {
+      const plat = platformClass(c.platform);
+      const title = escapeHtml(c.title || "");
+      const platform = escapeHtml(c.platform || "Course");
+      const duration = escapeHtml(c.duration || "—");
+      const reason = c.reason ? `<p class="reason">${escapeHtml(c.reason)}</p>` : "";
+      return `
+        <article class="card">
+          <h2 class="card-title">${title}</h2>
+          <div class="badges">
+            <span class="badge badge-platform ${plat}" title="Platform">${platform}</span>
+            <span class="badge badge-duration" title="Duration">${duration}</span>
+          </div>
+          ${reason}
+        </article>`;
+    }
+
+    const form = document.getElementById("form");
+    const out = document.getElementById("out");
+    const err = document.getElementById("err");
+    const go = document.getElementById("go");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+      out.innerHTML = "";
+      go.disabled = true;
+      const fd = new FormData(form);
+      const body = {
+        query: fd.get("query") || "",
+        level: fd.get("level") || "",
+        duration: fd.get("duration") || "",
+        goal: fd.get("goal") || "",
+      };
+      try {
+        const res = await fetch("/recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const d = data.detail;
+          const msg =
+            typeof d === "string"
+              ? d
+              : Array.isArray(d)
+                ? d.map((x) => x.msg || JSON.stringify(x)).join("; ")
+                : res.statusText || "Request failed";
+          throw new Error(msg);
+        }
+        const list = data.recommendations || [];
+        if (!list.length) {
+          out.innerHTML = '<p class="empty">No recommendations returned.</p>';
+          return;
+        }
+        out.innerHTML = list.map(renderCard).join("");
+      } catch (x) {
+        err.textContent = String(x.message || x);
+        err.hidden = false;
+      } finally {
+        go.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

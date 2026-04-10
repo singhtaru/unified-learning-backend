@@ -1,5 +1,6 @@
 # Python bytecode/cache
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 
@@ -32,6 +33,7 @@ htmlcov/
 # Build/distribution
 build/
 dist/
+node_modules/
 site/
 pip-wheel-metadata/
 *.egg

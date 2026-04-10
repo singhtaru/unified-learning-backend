@@ -7,7 +7,7 @@ Maps JSON objects to :class:`~models.response_models.CourseRecommendation`.
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 
 import httpx
 
@@ -16,6 +16,8 @@ from models.response_models import CourseRecommendation
 from services.course_ids import build_course_id
 
 logger = logging.getLogger(__name__)
+
+TRUSTED_COURSE_SITES = ("coursera.org", "udemy.com", "edx.org")
 
 
 def _first_str(d: Dict[str, Any], *keys: str) -> str:
@@ -36,24 +38,24 @@ def _map_api_item_to_course(
     title = _first_str(raw, "title", "name", "course_title", "courseTitle")
     platform = _first_str(raw, "platform", "provider", "vendor", "site")
     duration = _first_str(raw, "duration", "length", "time", "weeks")
-    reason = _first_str(raw, "reason", "summary", "description", "blurb", "overview")
+    url = _first_str(raw, "url", "link", "href", "course_url", "courseUrl")
     course_id = _first_str(raw, "course_id", "id", "courseId", "uuid", "slug")
 
     if not title or not platform:
         return None
     if not duration:
         duration = "flexible"
-    if not reason:
-        reason = f"Listed on {platform} as a match for your search and preferences."
+    reason = url if url else f"{platform} course: {title}"
     if not course_id:
         course_id = build_course_id(platform, title)
     return CourseRecommendation(
         course_id=course_id,
         title=title,
+        url=url,
         platform=platform,
         duration=duration,
-        reason=reason,
         source=source,
+        reason=reason,
     )
 
 
@@ -66,6 +68,29 @@ def _extract_course_list(payload: Any) -> List[Any]:
             if isinstance(val, list):
                 return val
     return []
+
+
+def _build_tavily_course_query(user_query: str) -> str:
+    """
+    Expand user input into a course-focused web query for higher quality links.
+
+    Example:
+    ``react vs vue`` ->
+    ``react vs vue best course online learning frontend courses online site:coursera.org OR site:udemy.com OR site:edx.org``
+    """
+    base = " ".join((user_query or "").strip().split())
+    if not base:
+        return ""
+
+    expanded_parts: List[str] = [base]
+    lower = base.lower()
+    for phrase in ("best", "course", "online learning", "frontend", "courses online"):
+        if phrase not in lower:
+            expanded_parts.append(phrase)
+
+    site_clause = " OR ".join(f"site:{site}" for site in TRUSTED_COURSE_SITES)
+    expanded_parts.append(site_clause)
+    return " ".join(expanded_parts)
 
 
 def fetch_courses_for_preferences(
@@ -91,12 +116,15 @@ def fetch_courses_for_preferences(
         return []
 
     params: Dict[str, Any] = {
-        "query": (query or "").strip(),
+        "query": _build_tavily_course_query((query or "").strip()),
         "level": (level or "").strip(),
         "duration": (duration or "").strip(),
         "goal": (goal or "").strip(),
         "limit": max(1, min(limit, 50)),
     }
+    if not params["query"]:
+        logger.warning("Empty query passed to course search API")
+        return []
     headers: Dict[str, str] = {"Accept": "application/json"}
     key = (settings.course_search_api_key or "").strip()
     if key:

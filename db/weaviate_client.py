@@ -44,6 +44,11 @@ def connect_to_weaviate() -> Any:
     return client
 
 
+def get_client() -> Any:
+    """Return a connected Weaviate client. Caller must :meth:`close` when finished."""
+    return connect_to_weaviate()
+
+
 def create_schema() -> None:
     """Create CourseRecommendation collection if it does not exist."""
     if weaviate is None or Configure is None or DataType is None or Property is None:  # pragma: no cover
@@ -224,45 +229,6 @@ def search_similar_queries_all(query_embedding: List[float], limit: int = 10) ->
             exc,
         )
         return []
-    finally:
-        if client:
-            client.close()
-
-
-def fetch_all_stored_objects() -> List[Dict[str, Any]]:
-    """
-    Return all objects in the CourseRecommendation collection: ``uuid`` plus ``properties``.
-
-    Used by debug tooling. Paginates internally. Does not include vectors.
-    """
-    if weaviate is None:  # pragma: no cover
-        raise RuntimeError("Missing dependency: weaviate-client (import failed)")
-    create_schema()
-    client: Optional[Any] = None
-    try:
-        client = connect_to_weaviate()
-        collection = client.collections.get(WEAVIATE_CLASS_NAME)
-        out: List[Dict[str, Any]] = []
-        offset = 0
-        page_size = 100
-        while True:
-            res = collection.query.fetch_objects(limit=page_size, offset=offset)
-            objs = res.objects
-            if not objs:
-                break
-            for obj in objs:
-                raw = obj.properties or {}
-                props: Dict[str, Any] = {}
-                for k, v in dict(raw).items():
-                    if isinstance(v, (str, int, float, bool)) or v is None:
-                        props[k] = v
-                    else:
-                        props[k] = str(v)
-                out.append({"uuid": str(obj.uuid), "properties": props})
-            offset += len(objs)
-            if len(objs) < page_size:
-                break
-        return out
     finally:
         if client:
             client.close()

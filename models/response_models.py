@@ -1,14 +1,20 @@
-from typing import List, Literal
+from typing import List
 
 from pydantic import BaseModel, Field
 
 
 class CourseRecommendation(BaseModel):
-    course_id: str = Field(..., min_length=1)
-    title: str = Field(..., min_length=1)
-    platform: str = Field(..., min_length=1)
-    duration: str = Field(..., min_length=1)
-    reason: str = Field(..., min_length=1)
+    course_id: str = Field(..., min_length=1, description="Stable course identifier")
+    title: str = Field(..., min_length=1, description="Display title")
+    url: str = Field(default="", description="Course or listing URL if known")
+    platform: str = Field(..., min_length=1, description="e.g. Udemy, YouTube, Coursera")
+    duration: str = Field(..., min_length=1, description="Human-readable length or pace")
+    source: str = Field(
+        ...,
+        min_length=1,
+        description="Origin label: memory, hybrid, new, dataset, or web",
+    )
+    reason: str = Field(..., min_length=1, description="Why this course appears in results")
     explanation: str = Field(
         default="",
         description="Why this course was recommended (filled by ranking or memory path).",
@@ -17,16 +23,6 @@ class CourseRecommendation(BaseModel):
         default=0.0,
         ge=0.0,
         description="Per-course feedback signal from Weaviate JSON (e.g. avg rating sync); 0 if unknown.",
-    )
-    source: Literal["memory", "hybrid", "new", "dataset", "web"] = Field(
-        ...,
-        description=(
-            "memory: from Weaviate hit (high similarity); "
-            "hybrid: from Weaviate + supplemental mix; "
-            "new: filtered match from local courses.json; "
-            "dataset: top entries from local courses.json when filters yield nothing; "
-            "web: from external public JSON fetch"
-        ),
     )
 
 
