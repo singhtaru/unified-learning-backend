@@ -1,7 +1,7 @@
 from typing import List
 
 from dotenv import load_dotenv
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load .env from cwd / standard locations before reading env vars.
@@ -22,7 +22,20 @@ class Settings(BaseSettings):
     cors_allow_methods: List[str] = Field(default_factory=lambda: ["*"])
     cors_allow_headers: List[str] = Field(default_factory=lambda: ["*"])
 
+    # Comma-separated extra origins (e.g. https://your-app.ngrok-free.app). Env: CORS_EXTRA_ORIGINS
+    cors_extra_origins: str = Field(default="")
+
     log_level: str = "INFO"
+
+    @model_validator(mode="after")
+    def _merge_cors_origins(self):
+        raw = (self.cors_extra_origins or "").strip()
+        if not raw:
+            return self
+        extra = [o.strip() for o in raw.split(",") if o.strip()]
+        merged = list(dict.fromkeys([*self.cors_origins, *extra]))
+        object.__setattr__(self, "cors_origins", merged)
+        return self
 
     weaviate_url: str = Field(
         default="http://localhost:8080",
@@ -33,8 +46,8 @@ class Settings(BaseSettings):
         description="Minimum similarity for filtered Weaviate search (env: SIMILARITY_THRESHOLD)",
     )
     memory_threshold: float = Field(
-        default=0.7,
-        description="Similarity threshold for MEMORY strategy (env: MEMORY_THRESHOLD)",
+        default=0.85,
+        description="Similarity threshold for strong Weaviate match; above hybrid floor, memory is merged with live APIs (env: MEMORY_THRESHOLD)",
     )
     hybrid_threshold: float = Field(
         default=0.5,

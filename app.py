@@ -16,13 +16,21 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Run one-time Weaviate sample seed off the event loop; failures are non-fatal."""
-    try:
-        from db.seed_weaviate import maybe_seed_weaviate_on_startup
+    """
+    Start accepting HTTP traffic immediately; run Weaviate sample seed in the background.
 
-        await asyncio.to_thread(maybe_seed_weaviate_on_startup)
-    except Exception as exc:
-        logger.warning("Weaviate startup seed could not run: %s", exc)
+    Awaiting the seed before ``yield`` delays Uvicorn startup completion and leaves port 8000
+    refusing connections while the embedding model loads and Weaviate inserts run (often several seconds).
+    """
+    async def _seed_background() -> None:
+        try:
+            from db.seed_weaviate import maybe_seed_weaviate_on_startup
+
+            await asyncio.to_thread(maybe_seed_weaviate_on_startup)
+        except Exception as exc:
+            logger.warning("Weaviate startup seed could not run: %s", exc)
+
+    asyncio.create_task(_seed_background())
     yield
 
 

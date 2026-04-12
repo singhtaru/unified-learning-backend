@@ -143,18 +143,29 @@ def fetch_udemy_courses(query: str, *, limit: int = 5) -> List[Dict[str, str]]:
 
     payload: Any = None
     last_error: str | None = None
+    last_debug_body: str | None = None
     try:
         with httpx.Client(timeout=20.0) as client:
             for params in param_variants:
+                response = None
                 try:
                     response = client.get(url, headers=headers, params=params)
                     response.raise_for_status()
                     payload = response.json()
+                    try:
+                        last_debug_body = response.text[:2000]
+                    except Exception:
+                        last_debug_body = None
                     items_try = _extract_course_list(payload)
                     if items_try:
                         break
                 except Exception as exc:
                     last_error = str(exc)
+                    if response is not None:
+                        try:
+                            last_debug_body = response.text[:2000]
+                        except Exception:
+                            pass
                     continue
             else:
                 if last_error:
@@ -172,6 +183,10 @@ def fetch_udemy_courses(query: str, *, limit: int = 5) -> List[Dict[str, str]]:
                         "Response shape may differ — extend _extract_course_list in udemy_rapidapi.py.",
                         url,
                     )
+                logger.debug(
+                    "Udemy RapidAPI raw body (truncated for debug): %s",
+                    (last_debug_body or "")[:1200],
+                )
                 return []
     except Exception as exc:
         logger.exception("Udemy RapidAPI request failed: %s", exc)

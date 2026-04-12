@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.27.10
@@ -14,6 +12,8 @@ services:
       DEFAULT_VECTORIZER_MODULE: none
       CLUSTER_HOSTNAME: node1
       DISABLE_CLUSTER: "true"
+      # Docker Desktop / some networks: memberlist cannot infer a private IP; without this Weaviate exits and :8080 never listens.
+      CLUSTER_ADVERTISE_ADDR: "127.0.0.1"
     volumes:
       - weaviate_data:/var/lib/weaviate
 

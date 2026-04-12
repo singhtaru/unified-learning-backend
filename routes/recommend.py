@@ -9,6 +9,7 @@ from db.weaviate_client import create_schema, store_recommendation
 from models.request_models import RecommendRequest
 from models.response_models import RecommendResponse
 from services.agent import fallback_new_recommendations, generate_recommendations
+from services.ranking import rank_recommendations_for_request
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,8 @@ def recommend(payload: RecommendRequest) -> RecommendResponse:
 
     ``compare`` / ``vs`` in ``query`` uses APIs on the raw query only; otherwise
     memory/hybrid/API paths use an enriched string built from all four fields.
-    Results are stored in the mock DB and persisted to Weaviate (metadata includes
+    Results are re-ranked by topic overlap and fit to ``level``, ``duration``, and
+    ``goal`` before returning. Stored in the mock DB and Weaviate (metadata includes
     level, duration, goal).
     """
     query_id = str(uuid4())
@@ -42,6 +44,12 @@ def recommend(payload: RecommendRequest) -> RecommendResponse:
                 gen_exc,
             )
             recommendations = fallback_new_recommendations(payload)
+
+        recommendations = rank_recommendations_for_request(
+            recommendations,
+            payload,
+            top_k=8,
+        )
 
         store_recommendations(query_id=query_id, recommendations=recommendations)
         try:
