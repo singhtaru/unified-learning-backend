@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, status
 
 from db.mock_db import create_query_record, store_recommendations
+from db.realtime_activity_store import record_action as record_realtime_activity
 from db.weaviate_client import create_schema, store_recommendation
 from models.request_models import RecommendRequest
 from models.response_models import RecommendResponse
@@ -71,6 +72,9 @@ def recommend(payload: RecommendRequest) -> RecommendResponse:
                 weaviate_error,
                 exc_info=True,
             )
+
+        if payload.email:
+            record_realtime_activity(payload.email, action="recommend")
 
         return RecommendResponse(query_id=query_id, recommendations=recommendations)
     except HTTPException:

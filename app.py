@@ -3,11 +3,13 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 
+from auth.exceptions import AuthError
 from config.settings import settings
+from routes.auth import router as auth_router
 from routes.feedback import router as feedback_router
 from routes.recommend import router as recommend_router
 
@@ -22,6 +24,16 @@ async def lifespan(app: FastAPI):
     Awaiting the seed before ``yield`` delays Uvicorn startup completion and leaves port 8000
     refusing connections while the embedding model loads and Weaviate inserts run (often several seconds).
     """
+    from db.feedback_store import init_feedback_storage
+    from db.user_activity_store import init_user_activity_storage
+    from db.user_courses_store import init_user_courses_storage
+    from db.user_store import init_users_storage
+
+    init_users_storage()
+    init_user_courses_storage()
+    init_user_activity_storage()
+    init_feedback_storage()
+
     async def _seed_background() -> None:
         try:
             from db.seed_weaviate import maybe_seed_weaviate_on_startup
@@ -54,14 +66,23 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=settings.cors_allow_credentials,
-    allow_methods=settings.cors_allow_methods,
-    allow_headers=settings.cors_allow_headers,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(recommend_router)
 app.include_router(feedback_router)
+
+
+@app.exception_handler(AuthError)
+async def auth_error_handler(_request: Request, exc: AuthError) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"success": False, "message": exc.message, "data": None},
+    )
 
 
 @app.get("/demo")

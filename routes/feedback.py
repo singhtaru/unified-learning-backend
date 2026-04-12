@@ -17,16 +17,16 @@ def submit_feedback(payload: CourseFeedbackRequest) -> FeedbackSuccessResponse:
     """Store per-course user feedback in SQLite."""
     try:
         logger.info(
-            "Feedback received user_id=%r course_id=%r rating=%d",
-            payload.user_id,
+            "Feedback received user_email=%r course_id=%r rating=%d",
+            payload.user_email,
             payload.course_id,
             payload.rating,
         )
-        feedback_id = save_feedback(
-            user_id=payload.user_id,
+        feedback_id, created_new = save_feedback(
+            user_email=payload.user_email,
             course_id=payload.course_id,
             rating=payload.rating,
-            timestamp=payload.timestamp,
+            comment=payload.comment,
         )
         avg = get_average_rating(payload.course_id)
         logger.info(
@@ -52,7 +52,9 @@ def submit_feedback(payload: CourseFeedbackRequest) -> FeedbackSuccessResponse:
         return FeedbackSuccessResponse(
             success=True,
             feedback_id=feedback_id,
-            message="Feedback stored successfully",
+            message="Feedback stored successfully"
+            if created_new
+            else "Feedback updated (one entry per user per course)",
             course_average_rating=avg,
             weaviate_objects_updated=weaviate_updated,
         )

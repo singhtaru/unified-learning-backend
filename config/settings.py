@@ -37,6 +37,16 @@ class Settings(BaseSettings):
         object.__setattr__(self, "cors_origins", merged)
         return self
 
+    @model_validator(mode="after")
+    def _default_jwt_secret_for_local_dev(self):
+        if not (self.jwt_secret_key or "").strip():
+            object.__setattr__(
+                self,
+                "jwt_secret_key",
+                "dev-only-set-JWT_SECRET_KEY-in-production",
+            )
+        return self
+
     weaviate_url: str = Field(
         default="http://localhost:8080",
         description="Weaviate REST/gRPC base URL (env: WEAVIATE_URL)",
@@ -69,6 +79,38 @@ class Settings(BaseSettings):
     course_search_timeout_seconds: float = Field(
         default=15.0,
         description="HTTP timeout for course search API (env: COURSE_SEARCH_TIMEOUT_SECONDS)",
+    )
+
+    users_db_path: str = Field(
+        default="users.db",
+        description="SQLite path for auth users (env: USERS_DB_PATH). Use an EBS path on EC2 for persistence.",
+    )
+    jwt_secret_key: str = Field(
+        default="",
+        description="HS256 signing secret for access tokens (env: JWT_SECRET_KEY). Required for multi-instance deploys.",
+    )
+    jwt_algorithm: str = Field(default="HS256", description="JWT algorithm (env: JWT_ALGORITHM)")
+    jwt_expire_minutes: int = Field(
+        default=10080,
+        description="Access token lifetime in minutes (default 7 days; env: JWT_EXPIRE_MINUTES)",
+    )
+    auth_dev_fallback_email: bool = Field(
+        default=False,
+        description=(
+            "If true, protected routes accept user identity via ?email=, X-Dev-User-Email header, "
+            "or optional JSON `email` when Authorization Bearer is missing (local dev only). "
+            "Env: AUTH_DEV_FALLBACK_EMAIL"
+        ),
+    )
+    progress_daily_goal_minutes: int = Field(
+        default=60,
+        description="Daily learning-time goal in minutes for dashboard ratio (env: PROGRESS_DAILY_GOAL_MINUTES)",
+    )
+    progress_activity_chart_days: int = Field(
+        default=14,
+        ge=1,
+        le=90,
+        description="Days included in GET /progress activity series (env: PROGRESS_ACTIVITY_CHART_DAYS)",
     )
 
     model_config = SettingsConfigDict(

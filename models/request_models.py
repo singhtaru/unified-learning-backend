@@ -1,6 +1,5 @@
-from datetime import datetime, timezone
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -37,6 +36,10 @@ class RecommendRequest(BaseModel):
     level: str = Field(default="beginner", description="Target learner level (e.g., beginner)")
     duration: str = Field(default="flexible", description="Desired course duration")
     goal: str = Field(default="learning", description="User goal (e.g., job, certification)")
+    email: Optional[str] = Field(
+        default=None,
+        description="Optional user email for in-memory weekday activity tracking",
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -60,6 +63,14 @@ class RecommendRequest(BaseModel):
                 merged[key] = default
             elif isinstance(val, str):
                 merged[key] = val.strip()
+
+        raw_email = merged.get("email")
+        if raw_email is None or (isinstance(raw_email, str) and not raw_email.strip()):
+            merged["email"] = None
+        elif isinstance(raw_email, str):
+            merged["email"] = raw_email.strip()
+        else:
+            merged["email"] = None
         return merged
 
 
@@ -69,10 +80,23 @@ class FeedbackRequest(BaseModel):
 
 
 class CourseFeedbackRequest(BaseModel):
-    user_id: str = Field(..., min_length=1, description="Unique user identifier")
     course_id: str = Field(..., min_length=1, description="Course identifier")
     rating: int = Field(..., ge=1, le=5, description="Rating between 1 and 5")
-    timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        description="Feedback timestamp (UTC by default)",
+    comment: str = Field(
+        default="",
+        max_length=20000,
+        description="Optional free-text feedback for this course",
     )
+    user_email: str = Field(
+        ...,
+        min_length=3,
+        description="User email (normalized); one row per user per course",
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_user_id_alias(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "user_email" not in data and data.get("user_id"):
+            data = dict(data)
+            data["user_email"] = data.pop("user_id")
+        return data
